@@ -70,7 +70,8 @@ IGNORE = [
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--user", default=os.environ.get("HF_USER", "AmrendraTheCoder"))
+    ap.add_argument("--user", default=os.environ.get("HF_USER"),
+                    help="HF namespace; defaults to whoever the token belongs to")
     ap.add_argument("--space", default=os.environ.get("HF_SPACE", "askmydocs"))
     ap.add_argument("--private", action="store_true")
     args = ap.parse_args()
@@ -85,16 +86,54 @@ def main() -> int:
 
     try:
         from huggingface_hub import HfApi
+        from huggingface_hub.errors import HfHubHTTPError
     except ImportError:
         print("pip install huggingface_hub", file=sys.stderr)
         return 1
 
-    repo_id = f"{args.user}/{args.space}"
     api = HfApi(token=token)
 
+    # Ask the token who it belongs to instead of assuming the HF username
+    # matches the GitHub one. It frequently doesn't, and the failure mode is
+    # a bare 403 that reads like a permissions problem when it's really a
+    # wrong namespace. Guessing an identity is never worth the confusion.
+    try:
+        me = api.whoami()
+    except Exception as e:
+        print(f"huggingface rejected this token: {e}\n"
+              "Get a new one at https://huggingface.co/settings/tokens",
+              file=sys.stderr)
+        return 1
+
+    namespaces = [me["name"]] + [o["name"] for o in me.get("orgs", [])]
+    user = args.user or me["name"]
+    print(f"authenticated as {me['name']} (can write to: {', '.join(namespaces)})")
+
+    if user not in namespaces:
+        print(f"\n'{user}' is not a namespace this token can write to.\n"
+              f"Available: {', '.join(namespaces)}\n"
+              f"Retry with:  python3 deploy_space.py --user {me['name']}",
+              file=sys.stderr)
+        return 1
+
+    role = ((me.get("auth") or {}).get("accessToken") or {}).get("role")
+    if role == "read":
+        print("\nThis is a READ token; creating a Space needs write access.\n"
+              "https://huggingface.co/settings/tokens -> New token -> Write",
+              file=sys.stderr)
+        return 1
+
+    repo_id = f"{user}/{args.space}"
     print(f"creating space {repo_id} (docker sdk)...")
-    api.create_repo(repo_id=repo_id, repo_type="space", space_sdk="docker",
-                    private=args.private, exist_ok=True)
+    try:
+        api.create_repo(repo_id=repo_id, repo_type="space", space_sdk="docker",
+                        private=args.private, exist_ok=True)
+    except HfHubHTTPError as e:
+        print(f"\ncould not create the space: {e}\n\n"
+              "If this is a fine-grained token, it needs permission to create "
+              "repos under your account. The simplest fix is a plain 'Write' "
+              "token rather than fine-grained.", file=sys.stderr)
+        return 1
 
     root = Path(__file__).parent
     with tempfile.TemporaryDirectory() as tmp:
