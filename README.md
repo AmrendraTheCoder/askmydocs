@@ -19,10 +19,17 @@ Small enough to read end to end in one sitting: ~1,000 lines of Python across si
 
 The two retrievers fail on different things. BM25 matches tokens; vectors match meaning:
 
-| Query | What BM25 sees | What vectors see |
+| Query | What BM25 does | What vectors do |
 |---|---|---|
-| `"when do I get my money back"` | no shared words with "refund" — nothing to score | the paraphrase, correctly |
-| `"AUTH-1203"` | an exact, rare token — its best case | a rare string with little semantic content |
+| `"how hard can I hammer the endpoint"` | ranks `AUDIT LOGGING` first — matched on common words | ranks `RATE LIMITS` first, which is the answer |
+| `"AUTH-1203"` | an exact, rare token — its best case, 2.73 vs 0.00 for everything else | a rare string with little semantic content to work with |
+
+Worth being precise about the keyword failure, because the obvious story is
+wrong: BM25 rarely scores *zero* on a paraphrase. Words like "within", "days"
+and "request" appear all over a corpus, so it almost always scores something.
+Measured here, its top score was above zero on every paraphrase query tried.
+Its real failure mode is being **confidently wrong** — ranking a chunk that
+shares vocabulary above the one that shares meaning.
 
 Fusion is **Reciprocal Rank Fusion** by default (`1/(k + rank)`, k=60) — no score normalisation and no tuning needed. A normalised weighted blend is also implemented and selectable.
 
