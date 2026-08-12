@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+data/chroma/
+data/uploads/
+data/chunks.json
+data/lesson4_chroma/
+data/lesson7_*.png
+.DS_Store

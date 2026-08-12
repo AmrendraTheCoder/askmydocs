@@ -1,0 +1,28 @@
+CUSTOMER SUPPORT HANDBOOK — INTERNAL
+
+REFUNDS
+Refunds are processed within 7 working days of approval. The money is returned to the original payment method automatically. If the customer paid by UPI it may take an extra 2 days depending on their bank. Refunds cannot be redirected to a different account than the one used for payment.
+
+CANCELLATION
+A customer can cancel an order any time before it ships. Once the courier has picked the parcel up, cancellation is no longer possible and the customer must use the return flow instead. Cancelled prepaid orders trigger an automatic refund.
+
+RETURNS
+Returns are accepted within 10 days of delivery for unused items in original packaging. Innerwear, perishables and personalised items cannot be returned. A pickup is scheduled within 48 hours of the return request being approved.
+
+DELIVERY
+Delivery usually takes 3 to 5 days in metro cities and 5 to 8 days elsewhere. Same-day delivery is available in Bangalore and Mumbai for orders placed before 11am. Delivery to remote pincodes may add 3 extra days and is not eligible for same-day service.
+
+SUPPORT HOURS
+The office is open Monday to Friday, 9am to 6pm IST. Email support is answered within one working day. Phone support is available only on weekdays. There is no support cover on national holidays.
+
+ERROR CODES
+Error code SKU-99213 means the item is out of stock at the selected warehouse. Ask the customer to choose a different warehouse or wait for restock.
+Error code PAY-4471 means the payment gateway declined the card. Ask the customer to retry with another payment method.
+Error code ADR-8890 means the delivery pincode is not serviceable by any of our courier partners.
+Error code AUTH-1203 means the session token expired. The customer should log out and log in again.
+
+WARRANTY
+All electronics carry a 12 month manufacturer warranty. Accessories carry 6 months. Warranty does not cover physical damage, water damage, or damage from unauthorised repair. A warranty claim needs the original invoice number.
+
+ESCALATION
+If a ticket is open for more than 48 hours without a first response it escalates automatically to the team lead. Refund disputes above 10000 rupees always go to the finance team before approval.
