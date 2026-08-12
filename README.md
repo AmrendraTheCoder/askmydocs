@@ -8,7 +8,7 @@ Small enough to read end to end in one sitting: ~1,000 lines of Python across si
 
 ## What it does
 
-- **Ingest** PDFs, text files, or images. Images go through an OpenCV cleanup pipeline and Tesseract OCR.
+- **Ingest** PDFs, text files, or images. Images go through an OpenCV cleanup pipeline and Tesseract OCR, keeping the page's paragraph structure rather than flattening it.
 - **Chunk** documents by paragraph (not blind word windows) with overlap across boundaries.
 - **Embed** each chunk with `all-MiniLM-L6-v2`, store the vectors in Chroma.
 - **Search** with four selectable strategies — `rrf`, `weighted`, `vector`, `keyword` — so you can see exactly what each half of the hybrid contributes.
@@ -150,6 +150,7 @@ PyTorch; that size is also why this can't run on a serverless host (see
 - `chunks.json` is written to a temp file and atomically renamed, so a crash mid-write can't corrupt it.
 - Concurrent ingests are serialised with a lock to prevent lost writes.
 - OCR below 70% average confidence logs a warning, so poor search results can be traced to an unreadable image rather than the ranker.
+- OCR preserves layout. `image_to_data` tags every word with its block and paragraph, so words are grouped by `(block_num, par_num)` and joined with a blank line — which is exactly what the chunker splits on. Flattening to a string instead (and passing `--psm 6`, which tells Tesseract *not* to analyse layout) meant every image took the blind fallback chunking path while typed documents got the structure-aware one. Measured on a 4-section page: the flat version cut chunk 2 mid-sentence at `"manufacturer warranty. Accessories carry..."`; the grouped version starts it at the `ESCALATION` heading.
 - Chunk IDs are content-hashed, so re-uploading the same file overwrites rather than duplicating.
 - Warmup failure is logged, not fatal — the service still boots and answers `/health` so an orchestrator can report "up but degraded".
 
