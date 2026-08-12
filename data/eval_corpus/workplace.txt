@@ -1,0 +1,31 @@
+WORKPLACE POLICY — INTERNAL REFERENCE
+
+LEAVE ENTITLEMENT
+Employees accrue 18 days of paid leave per year, credited monthly rather than upfront. Unused leave carries over up to a cap of 30 days. Leave taken before it has accrued is permitted at manager discretion and settled against future accrual.
+
+LEAVE APPROVAL
+Leave requests are approved by the reporting manager within 3 working days. A request left unanswered past that window escalates to the skip-level manager. Leave during a release freeze needs a second approval from the engineering lead.
+
+SICK LEAVE
+Sick leave is separate from paid leave and does not carry over. A medical certificate is required for any absence longer than 3 consecutive days. Sick leave cannot be converted to paid leave at exit.
+
+REMOTE WORK
+Employees may work remotely up to 8 days per month without prior approval. Fully remote arrangements require a written agreement and are reviewed every 6 months. Working from outside the country needs clearance from finance because of tax residency rules.
+
+EXPENSE CLAIMS
+Expense claims must be filed within 45 days of the spend date and require an itemised receipt. Claims above 15000 rupees need pre-approval. Reimbursement is paid with the following month's salary, not on a rolling basis.
+
+EQUIPMENT
+Laptops are refreshed every 3 years. A damaged device is replaced within 5 working days from local stock. Personal use of company hardware is permitted within the acceptable use policy.
+
+ONBOARDING
+New joiners are provisioned before their start date so that day one is productive. Access is granted by role template rather than by copying an existing employee's permissions, which is how permission creep starts.
+
+PERFORMANCE REVIEW
+Reviews run twice a year, in April and October. Feedback is collected from a minimum of 3 peers. Ratings are calibrated across teams before they are shared, so a manager cannot unilaterally set a final rating.
+
+EXIT PROCESS
+Notice period is 60 days for engineering roles and 30 days elsewhere. Access is revoked at the end of the last working day, not earlier, unless the exit is for cause. Final settlement is paid within 45 days of the last working day.
+
+TRAINING BUDGET
+Each employee has an annual training budget of 40000 rupees covering courses, books and conference tickets. Unused budget does not carry over. Conference travel is booked through the travel desk rather than claimed as an expense.

@@ -1,0 +1,33 @@
+SHIPPING AND LOGISTICS — INTERNAL REFERENCE
+
+CARRIER ALLOCATION
+Orders are allocated to a carrier by pincode serviceability, then by cost. A pincode served by only one partner skips the cost comparison entirely. Allocation runs at pickup time, not at order time, so a carrier outage between the two does not strand the parcel.
+
+PACKAGING
+Fragile items ship in double-walled cartons with corner protection. Liquids over 500ml require a sealed inner bag regardless of carton type. Packaging weight counts toward the billed weight, which is why oversized cartons quietly increase shipping cost.
+
+VOLUMETRIC WEIGHT
+Carriers bill on whichever is greater, actual weight or volumetric weight. Volumetric weight is length times width times height in centimetres divided by 5000. A light but bulky parcel is therefore billed as if it were heavy.
+
+TRACKING
+A tracking number is issued at manifest, not at pickup, so a number can exist for several hours before it shows any scan. Customers frequently report this as a broken tracking link when it is simply a parcel that has not been scanned yet.
+
+FAILED DELIVERY
+A courier attempts delivery three times before returning the parcel to origin. Each attempt must be logged with a reason code. Parcels returned to origin are restocked within 5 working days of arriving back at the warehouse.
+
+ADDRESS CORRECTION
+An address can be corrected while the parcel is in transit only if the new address falls within the same city. Cross-city redirection is not supported and the parcel must complete its return to origin first.
+
+REVERSE PICKUP
+Reverse pickups are scheduled within 48 hours of approval and attempted twice. If both attempts fail the customer is asked to self-ship and is reimbursed up to 150 rupees against a receipt.
+
+SHIPPING ERROR CODES
+Error code SHP-1140 means the pincode is serviceable but the carrier has paused intake at that facility.
+Error code SHP-2250 means the declared value exceeds the carrier insurance limit for that lane.
+Error code SHP-3360 means the parcel dimensions were rejected as oversized at the sorting hub.
+
+INTERNATIONAL
+International orders require a commercial invoice and an HS code per line item. Duties are payable by the recipient unless the order was placed under delivered-duty-paid terms. Customs holds are outside our control and typically clear within 4 working days.
+
+SLA AND PENALTIES
+Carriers owe a service credit when they miss the committed transit time on more than 2 percent of monthly volume. Claims must be filed within 30 days of the delivery date, which is why late claims are the most common reason a valid penalty goes uncollected.

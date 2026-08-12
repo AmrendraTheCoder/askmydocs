@@ -12,9 +12,12 @@ import time
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from . import db, ingest, search, vision
+from contextlib import asynccontextmanager
+
+from . import db, embedder, ingest, search, vision
 
 # Structured-ish logs with timestamps. The first thing you want at 2am
 # when someone says "it was slow around 3pm yesterday".
@@ -24,11 +27,38 @@ logging.basicConfig(
 )
 log = logging.getLogger("askmydocs")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Warm the embedding model at startup, not on the first search.
+
+    Lazy loading is fine in a script and wrong in a service: it moves the
+    cold start onto whichever unlucky user searches first, and it hides a
+    broken model download until traffic arrives instead of failing at
+    boot. Paying it here means a slow /ask is a real slow query, not a
+    cold cache — the difference between a useful latency alert and a
+    noisy one.
+
+    Note this warms by running a real search, not just loading the model;
+    loading alone still left a 12s first request, because the BM25 index
+    and Chroma's HNSW index are lazy too. See search.warmup().
+    """
+    started = time.perf_counter()
+    try:
+        search.warmup()
+        log.info("search path warm in %.0fms", (time.perf_counter() - started) * 1000)
+    except Exception:
+        # Don't refuse to boot — /health should still answer so an
+        # orchestrator can report "up but degraded" rather than crash-loop.
+        log.exception("warmup failed — first searches will be slow")
+    yield
+
+
 app = FastAPI(
     title="AskMyDocs",
     version="1.0.0",
     description="Upload documents and images, search them with hybrid "
                 "(BM25 + vector) retrieval.",
+    lifespan=lifespan,
 )
 
 # Lets a browser frontend on another port call this API.
@@ -40,6 +70,22 @@ app.add_middleware(
 )
 
 MAX_UPLOAD_MB = 25
+
+UI_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ui", "index.html"
+)
+
+
+@app.get("/", include_in_schema=False)
+def home():
+    """Serve the UI from the same process as the API.
+
+    One `uvicorn` command runs the whole app — no second server, no build
+    step, no node_modules. The page is plain HTML talking to the routes
+    below, so the API stays the only interface and the UI can't drift
+    from it.
+    """
+    return FileResponse(UI_FILE)
 
 
 # ---------------------------------------------------------------

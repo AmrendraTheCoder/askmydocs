@@ -21,7 +21,7 @@ import threading
 import numpy as np
 from rank_bm25 import BM25Okapi
 
-from . import db, embedder
+from . import db, embedder  # noqa: F401  (embedder used by warmup)
 
 log = logging.getLogger(__name__)
 
@@ -129,6 +129,23 @@ def hybrid_search(query: str, k: int = 5, alpha: float = 0.5,
 
     log.info("query=%r method=%s hits=%d", query, method, len(results))
     return results
+
+
+def warmup() -> None:
+    """Run one real search at startup so no user pays the cold path.
+
+    Warming the embedder alone was not enough — measured, the first /ask
+    still took 12.4s with the model already warm. The rest of the cost is
+    the BM25 index being built over the corpus and Chroma opening its HNSW
+    index on first query. Both are lazy, and both are on the request path.
+
+    Doing a real search here exercises every one of them: load_chunks,
+    BM25 build, embed, Chroma query, fuse. If it throws, that is worth
+    knowing at boot rather than from the first user, so the caller logs
+    it rather than swallowing it silently.
+    """
+    embedder.warmup()
+    hybrid_search("warmup", k=1)
 
 
 def build_answer(query: str, results: list[dict]) -> str:

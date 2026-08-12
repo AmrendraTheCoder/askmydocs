@@ -16,7 +16,6 @@ opencv-python           # image processing
 pytesseract             # OCR (reading text from an image)
 Pillow                  # image loading helper
 
-# --- UI + misc ---
-streamlit               # quick python-only web UI
+# --- misc ---
 requests                # call APIs from python
 numpy

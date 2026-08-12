@@ -1,0 +1,31 @@
+API INTEGRATION GUIDE — INTERNAL REFERENCE
+
+AUTHENTICATION FLOW
+Clients exchange a client id and secret for a bearer token valid for 60 minutes. Tokens are refreshed with a refresh token valid for 30 days. A refresh token is single use and is rotated on every exchange to limit replay.
+
+PAGINATION
+List endpoints return a cursor rather than a page number, because offset pagination drifts when records are inserted mid-scan. A cursor stays valid for 24 hours. Requesting more than 200 items per page is rejected.
+
+IDEMPOTENCY
+Write requests accept an idempotency key so a retried request cannot create a duplicate record. Keys are remembered for 24 hours. Reusing a key with a different payload returns a conflict rather than silently applying the newer body.
+
+WEBHOOKS
+Webhooks are delivered at least once, so consumers must be idempotent. Failed deliveries retry with exponential backoff for up to 24 hours. Every payload is signed and the signature must be verified before the body is trusted.
+
+VERSIONING
+The API is versioned in the path. A version is supported for 18 months after its successor ships. Breaking changes are never applied to a live version; additive fields may appear at any time, so clients must ignore unknown fields.
+
+SANDBOX
+The sandbox mirrors production behaviour but uses synthetic data that resets every night. Sandbox credentials cannot be used against production, and a request that crosses environments fails closed rather than falling back.
+
+TIMEOUTS AND RETRIES
+Clients should set a 10 second timeout and retry idempotent requests up to 3 times with jitter. Retrying without jitter causes synchronised retry storms, which is the usual cause of a self-inflicted outage after a brief blip.
+
+ERROR SHAPE
+Every error returns a machine-readable code, a human-readable message and a request id. The request id is the single most useful thing a customer can quote when raising a ticket, because it maps directly to the server-side trace.
+
+BULK OPERATIONS
+Bulk endpoints accept up to 500 records and process them asynchronously, returning a job id. Job status is polled rather than pushed. A partially failed job reports per-record errors rather than failing the whole batch.
+
+DEPRECATION
+Deprecated fields are announced 6 months ahead and continue to return data for the whole notice period. A deprecation is communicated in the changelog, in response headers, and by email to the technical contact on the account.

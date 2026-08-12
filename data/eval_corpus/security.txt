@@ -1,0 +1,33 @@
+ACCOUNT AND SECURITY — INTERNAL REFERENCE
+
+PASSWORD POLICY
+Passwords must be at least 12 characters and are checked against a breached-password list at signup. We do not enforce rotation, because forced rotation reliably produces weaker passwords. Passwords are stored using bcrypt with a work factor of 12.
+
+TWO FACTOR AUTHENTICATION
+Time-based one-time codes and hardware security keys are both supported. SMS codes were removed in 2025 after repeated SIM-swap incidents. An account with a hardware key registered cannot fall back to a weaker second factor.
+
+SESSION HANDLING
+Sessions expire after 14 days of inactivity, or immediately when the user changes their password. Signing out of one device does not end sessions elsewhere unless the user explicitly chooses to end all sessions.
+
+ACCOUNT RECOVERY
+Recovery requires access to the registered email plus one additional signal, either a recovery code or an existing trusted device. Support staff cannot bypass this check, and any request asking them to should be treated as a social-engineering attempt.
+
+API KEYS
+API keys are shown exactly once at creation and stored only as a hash afterwards. A lost key cannot be recovered and must be rotated. Keys can be scoped to read-only, and every key records the timestamp of its last use so unused keys can be pruned.
+
+RATE LIMITS
+The public API allows 600 requests per minute per key, bursting to 1000. Exceeding the limit returns HTTP 429 with a Retry-After header. Sustained abuse triggers a temporary block of 15 minutes rather than a permanent ban.
+
+AUDIT LOGGING
+Every administrative action writes an audit entry containing the actor, the target, the source IP and a timestamp. Audit logs are retained for 400 days and are append-only, so they cannot be edited by anyone including administrators.
+
+SECURITY ERROR CODES
+Error code SEC-3310 means the request carried a valid key that lacks the required scope for that endpoint.
+Error code SEC-4420 means the signature on a webhook payload did not verify and the payload was discarded.
+Error code SEC-5530 means the account is locked pending a manual security review.
+
+DATA DELETION
+A deletion request removes personal data within 30 days across primary storage and backups. Aggregated analytics that cannot be tied back to an individual are retained. Deletion is irreversible and support must confirm identity before starting it.
+
+INCIDENT RESPONSE
+A confirmed security incident is disclosed to affected customers within 72 hours, even when the investigation is still open. The first notification states what is known and what is not, rather than waiting for a complete picture.

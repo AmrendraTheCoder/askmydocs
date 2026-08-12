@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AskMyDocs</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161b22;
+    --panel-2: #1c232c;
+    --line: #273040;
+    --text: #e6edf3;
+    --muted: #8b97a8;
+    --accent: #4c9aff;
+    --kw: #f0a35e;
+    --vec: #6bc2a8;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  .tag { font: 12px var(--mono); color: var(--muted); }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+
+  .bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 10px 14px; margin-bottom: 18px;
+    font: 12px var(--mono); color: var(--muted);
+  }
+  .bar b { color: var(--text); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #3fb950; }
+  .dot.bad { background: #f85149; }
+  .spacer { flex: 1; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > .grow { flex: 1; min-width: 220px; }
+
+  input[type=text], select {
+    width: 100%; background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 11px 13px; font-size: 15px; outline: none;
+  }
+  input[type=text]:focus, select:focus { border-color: var(--accent); }
+  select { font-size: 13px; cursor: pointer; }
+
+  button {
+    background: var(--accent); color: #07101f; border: 0; border-radius: 8px;
+    padding: 11px 20px; font-size: 14px; font-weight: 650; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--line); font-weight: 500;
+  }
+  button.ghost:hover { color: var(--text); border-color: var(--accent); }
+
+  label.field { display: block; font: 11px var(--mono); color: var(--muted);
+                text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+
+  .drop {
+    border: 1px dashed var(--line); border-radius: 8px; padding: 18px;
+    text-align: center; color: var(--muted); font-size: 13px; cursor: pointer;
+  }
+  .drop.over { border-color: var(--accent); color: var(--text); }
+
+  .hit { border-top: 1px solid var(--line); padding: 16px 0; }
+  .hit:first-of-type { border-top: 0; }
+  .hit-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+              font: 12px var(--mono); color: var(--muted); flex-wrap: wrap; }
+  .rank { background: var(--panel-2); border: 1px solid var(--line);
+          border-radius: 5px; padding: 1px 7px; color: var(--text); }
+  .src { color: var(--accent); }
+  .hit p { margin: 0; white-space: pre-wrap; }
+
+  /* the contribution bar — shows which half of the hybrid found this */
+  .split { display: flex; height: 5px; border-radius: 3px; overflow: hidden;
+           margin-top: 10px; background: var(--panel-2); }
+  .split i { display: block; height: 100%; }
+  .split .k { background: var(--kw); }
+  .split .v { background: var(--vec); }
+  .legend { display: flex; gap: 14px; font: 11px var(--mono);
+            color: var(--muted); margin-top: 6px; }
+  .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+            margin-right: 5px; vertical-align: middle; }
+
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 28px 0; }
+  .err { color: #ff8f8f; font: 13px var(--mono); }
+  .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .chip { background: var(--panel-2); border: 1px solid var(--line); color: var(--muted);
+          border-radius: 999px; padding: 4px 11px; font-size: 12px; cursor: pointer; }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>AskMyDocs</h1>
+    <span class="tag">hybrid retrieval · BM25 + dense vectors</span>
+  </header>
+  <div class="sub">Ask in plain English. Every result is text that really exists in your documents — nothing is generated.</div>
+
+  <div class="bar" id="statsbar">
+    <span class="dot" id="dot"></span><span id="statstext">checking…</span>
+    <span class="spacer"></span>
+    <span id="timing"></span>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div class="grow">
+        <label class="field" for="q">Question</label>
+        <input type="text" id="q" placeholder="how long until I get my money back" autocomplete="off">
+      </div>
+      <div style="width:150px">
+        <label class="field" for="method">Ranker</label>
+        <select id="method">
+          <option value="weighted">weighted</option>
+          <option value="rrf">rrf</option>
+          <option value="vector">vector only</option>
+          <option value="keyword">keyword only</option>
+        </select>
+      </div>
+      <div style="width:90px">
+        <label class="field" for="k">Results</label>
+        <select id="k">
+          <option>3</option><option selected>5</option><option>10</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:flex-end">
+        <button id="ask">Search</button>
+      </div>
+    </div>
+    <div class="examples" id="examples"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row" style="align-items:center">
+      <div class="grow">
+        <div class="drop" id="drop">
+          Drop a PDF, text file or image here — or click to choose
+          <input type="file" id="file" hidden>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button class="ghost" id="refresh">Refresh stats</button>
+        <button class="ghost" id="reset">Reset index</button>
+      </div>
+    </div>
+    <div id="uploadmsg" style="margin-top:10px; font:12px var(--mono); color:var(--muted)"></div>
+  </div>
+
+  <div class="panel" id="resultspanel">
+    <div class="empty" id="results">Ask something to see results.</div>
+  </div>
+
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const API = "";
+
+async function jfetch(path, opts) {
+  const r = await fetch(API + path, opts);
+  const time = r.headers.get("X-Response-Time-ms");
+  if (time) $("#timing").textContent = `last request ${time}ms`;
+  if (!r.ok) {
+    let msg = r.statusText;
+    try { msg = (await r.json()).detail || msg; } catch (e) {}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+async function loadStats() {
+  try {
+    const s = await jfetch("/stats");
+    $("#dot").className = "dot" + (s.consistent ? "" : " bad");
+    $("#statstext").innerHTML =
+      `<b>${s.chunks}</b> chunks · <b>${s.vectors}</b> vectors · ` +
+      `<b>${s.documents}</b> documents` +
+      (s.consistent ? "" : " · <b style='color:#f85149'>INCONSISTENT</b>");
+  } catch (e) {
+    $("#dot").className = "dot bad";
+    $("#statstext").textContent = "backend unreachable — is uvicorn running?";
+  }
+}
+
+const EXAMPLES = [
+  "how long until I get my money back",
+  "AUTH-1203",
+  "what happens if nobody is home",
+  "how hard can I hammer the endpoint",
+];
+$("#examples").innerHTML = EXAMPLES
+  .map(e => `<span class="chip">${e}</span>`).join("");
+$("#examples").onclick = e => {
+  if (e.target.classList.contains("chip")) { $("#q").value = e.target.textContent; ask(); }
+};
+
+function renderHits(data) {
+  if (!data.results.length) {
+    $("#results").className = "empty";
+    $("#results").textContent = "Nothing matched. Try different words, or check the index is populated.";
+    return;
+  }
+  $("#results").className = "";
+  $("#results").innerHTML = data.results.map(r => {
+    // Normalise the two halves against each other purely for display, so you
+    // can see at a glance which retriever is responsible for this hit.
+    const k = Math.max(r.keyword_score, 0), v = Math.max(r.vector_score, 0);
+    const tot = k + v || 1;
+    const kp = (100 * k / tot).toFixed(1), vp = (100 * v / tot).toFixed(1);
+    return `<div class="hit">
+      <div class="hit-head">
+        <span class="rank">#${r.rank}</span>
+        <span class="src">${r.source}</span>
+        <span>page ${r.page}</span>
+        <span>score ${r.score}</span>
+      </div>
+      <p>${r.text.replace(/</g, "&lt;")}</p>
+      <div class="split"><i class="k" style="width:${kp}%"></i><i class="v" style="width:${vp}%"></i></div>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--kw)"></span>keyword ${r.keyword_score}</span>
+        <span><span class="swatch" style="background:var(--vec)"></span>vector ${r.vector_score}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function ask() {
+  const query = $("#q").value.trim();
+  if (!query) return;
+  $("#ask").disabled = true;
+  $("#results").className = "empty";
+  $("#results").textContent = "searching…";
+  try {
+    const data = await jfetch("/ask", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        query, k: +$("#k").value, method: $("#method").value, alpha: 0.5
+      })
+    });
+    renderHits(data);
+  } catch (e) {
+    $("#results").className = "empty err";
+    $("#results").textContent = "error: " + e.message;
+  } finally {
+    $("#ask").disabled = false;
+  }
+}
+
+async function upload(file) {
+  const fd = new FormData();
+  fd.append("file", file);
+  $("#uploadmsg").textContent = `indexing ${file.name}…`;
+  try {
+    const r = await jfetch("/upload", {method: "POST", body: fd});
+    $("#uploadmsg").textContent =
+      `indexed ${r.source} — ${r.chunks} chunks from ${r.pages} page(s)` +
+      (r.ocr ? ` · OCR confidence ${r.ocr.confidence}%` : "") +
+      (r.warning ? ` · ${r.warning}` : "");
+    loadStats();
+  } catch (e) {
+    $("#uploadmsg").innerHTML = `<span class="err">upload failed: ${e.message}</span>`;
+  }
+}
+
+$("#ask").onclick = ask;
+$("#q").addEventListener("keydown", e => { if (e.key === "Enter") ask(); });
+$("#refresh").onclick = loadStats;
+$("#reset").onclick = async () => {
+  if (!confirm("Clear the whole index?")) return;
+  await jfetch("/reset", {method: "POST"});
+  $("#uploadmsg").textContent = "index cleared";
+  loadStats();
+};
+
+const drop = $("#drop"), fileInput = $("#file");
+drop.onclick = () => fileInput.click();
+fileInput.onchange = () => fileInput.files[0] && upload(fileInput.files[0]);
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => {
+  e.preventDefault(); drop.classList.remove("over");
+  if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]);
+};
+
+loadStats();
+</script>
+</body>
+</html>

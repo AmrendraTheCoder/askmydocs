@@ -1,0 +1,33 @@
+BILLING AND PAYMENTS — INTERNAL REFERENCE
+
+INVOICING
+Invoices are generated on the first working day of each month and emailed to the billing contact on file. An invoice that bounces is retried twice over the following 48 hours before the account is flagged. Invoice numbers follow the format INV-2291 and are never reused, even after a credit note is issued.
+
+CREDIT NOTES
+A credit note is raised when an invoice was issued in error or a service credit is owed. Credit notes reduce the balance on the next invoice rather than being paid out. A credit note above 25000 rupees requires a second approver from the finance team.
+
+PAYMENT METHODS
+We accept UPI, net banking, credit and debit cards, and NEFT for enterprise accounts. Wallet payments are not supported. Card payments are captured immediately; NEFT can take up to 3 working days to reflect against the invoice.
+
+FAILED PAYMENTS
+When a scheduled payment fails, the account enters a grace period of 7 days during which service continues uninterrupted. Two reminder emails are sent, on day 1 and day 5. After the grace period expires the account is suspended but no data is deleted.
+
+DUNNING
+Dunning emails stop immediately once a successful payment is recorded. A customer who pays partway through the dunning cycle should not receive further reminders; if they do, that is a bug worth escalating rather than a policy.
+
+TAX AND GST
+GST is applied at 18 percent on all domestic invoices. Customers must supply a valid GSTIN before the first invoice is generated, because a GSTIN cannot be added to an invoice retroactively. Export invoices are zero rated and carry a LUT declaration.
+
+PRORATION
+Upgrades are prorated to the day and charged immediately. Downgrades take effect at the start of the next billing cycle and are never prorated backwards, so a customer who downgrades on day 3 still pays the higher rate for that month.
+
+BILLING ERROR CODES
+Error code BIL-5510 means the payment method on file has expired and must be replaced by the customer.
+Error code BIL-6620 means the invoice total does not reconcile with the line items and needs finance review before it is sent.
+Error code BIL-7730 means a duplicate charge was detected and automatically voided.
+
+REFUND ROUTING
+Refunds always return to the original payment instrument. If that instrument is closed, finance issues a bank transfer against a signed indemnity form. This is the single most common source of long-running billing tickets.
+
+ANNUAL CONTRACTS
+Annual contracts are invoiced upfront and are not eligible for monthly proration. Mid-term cancellation of an annual contract produces a credit note, not a cash refund, unless the cancellation was caused by a service failure on our side.
