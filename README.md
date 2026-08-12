@@ -2,7 +2,7 @@
 
 Upload documents or images, ask questions in plain English, get the exact passage back — using **hybrid retrieval** (BM25 keyword search fused with dense vector search) over a local vector database.
 
-Built as a learning project for a Python backend role. Every part of it is small enough to read in one sitting.
+Small enough to read end to end in one sitting: ~1,000 lines of Python across six modules, with every design decision measured rather than asserted.
 
 ---
 
@@ -152,10 +152,6 @@ PyTorch; that size is also why this can't run on a serverless host (see
 - OCR below 70% average confidence logs a warning, so poor search results can be traced to an unreadable image rather than the ranker.
 - Chunk IDs are content-hashed, so re-uploading the same file overwrites rather than duplicating.
 - Warmup failure is logged, not fatal — the service still boots and answers `/health` so an orchestrator can report "up but degraded".
-
-## Learning path
-
-`LEARN.md` walks through the whole thing from scratch — 7 runnable lessons in `lessons/`, each one building up to a piece of the final app.
 
 ## Known limits
 

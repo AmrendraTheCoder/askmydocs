@@ -7,3 +7,6 @@ data/chunks.json
 data/lesson4_chroma/
 data/lesson7_*.png
 .DS_Store
+
+# local walkthrough scripts — teaching aids, not part of the project
+explain_*.py
