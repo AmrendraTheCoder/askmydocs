@@ -12,7 +12,7 @@ rank-bm25               # old-school keyword search
 pypdf                   # read text out of PDFs
 
 # --- computer vision ---
-opencv-python           # image processing
+opencv-python-headless           # image processing
 pytesseract             # OCR (reading text from an image)
 Pillow                  # image loading helper
 

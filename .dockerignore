@@ -1,0 +1,23 @@
+# Without this file, `COPY . .` pulls the local 1.4GB .venv into the image —
+# on top of the dependencies pip already installed. It built and ran fine and
+# was simply 1.4GB larger than it needed to be, which is exactly the kind of
+# waste nobody notices until the deploy is slow.
+.venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.claude/
+
+# Runtime state. The image seeds its own index at build time from
+# data/eval_corpus/, so shipping a local index would just be overwritten —
+# and would bake whatever happened to be on the dev machine into the image.
+data/chroma/
+data/lesson4_chroma/
+data/chunks.json
+data/uploads/
+data/eval_results.json
+
+.DS_Store
+*.md
+!README.md
