@@ -9,7 +9,12 @@ first thing anyone asks:
   Chroma and chunks.json need a disk that survives between requests.
 
 Any one of those rules out serverless. Spaces runs the container built by
-the Dockerfile next to this file, with 2 vCPU / 16GB RAM on the free tier.
+the Dockerfile next to this file.
+
+NOTE: as of 2026, Docker Spaces are NOT free — only Static Spaces are.
+Running this without a PRO subscription returns 402 Payment Required. The
+script is kept because it works and the Dockerfile is useful on its own;
+`docker run` locally needs no account at all (see the README).
 
 Usage:
     export HF_TOKEN=hf_...          # https://huggingface.co/settings/tokens ("write")

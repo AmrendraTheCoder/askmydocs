@@ -118,6 +118,18 @@ To reproduce the numbers above (this rebuilds the index from `data/eval_corpus/`
 .venv/bin/python eval.py
 ```
 
+### Or with Docker, if you'd rather not install anything
+
+```bash
+docker build -t askmydocs . && docker run -p 7860:7860 askmydocs
+```
+
+Then open http://localhost:7860. The image bakes in the embedding model and
+pre-seeds the demo index, so search works the moment it starts — no download
+on first request and no empty-index demo. It's ~2.7GB, almost all of which is
+PyTorch; that size is also why this can't run on a serverless host (see
+`Dockerfile` for the full reasoning).
+
 ## API
 
 | Method | Route | Purpose |
